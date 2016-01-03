@@ -1,0 +1,6 @@
+*Thumbs.db
+win/*.fat
+win/*.txt
+win/*.suo
+win/*.sdf
+win/Debug/
