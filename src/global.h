@@ -10,11 +10,16 @@
 
 using namespace std;
 
+// program version
 #define VERSION_PROGRAM 1
+// pseudoFAT specificiation version
 #define VERSION_PSEUDOFAT 5
 
+// program mode - reading
 #define PROGRAM_MODE_READ 0
+// program mode - defragmenting
 #define PROGRAM_MODE_DEFRAG 1
+// program mode - creating new image
 #define PROGRAM_MODE_CREATE 2
 
 extern int verbose_output;

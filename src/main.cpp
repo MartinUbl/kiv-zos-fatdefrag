@@ -21,14 +21,17 @@ int read_mode(const char* filename)
 
     cout << "Filesystem successfully loaded, proceeding with checks" << endl << endl;
 
+    // check for errors
     if (!partition->check_fattables())
         return 2;
 
+    // cache counts
     cout << "Caching data for future use..." << endl;
     partition->cache_counts();
 
     cout << "Filesystem is OK" << endl << endl;
 
+    // and eventually print contents
     if (dump_result)
         partition->dump_contents();
 
@@ -44,14 +47,18 @@ int defrag_mode(const char* filename, const char* outfilename)
 
     cout << "Filesystem successfully loaded, proceeding with checks" << endl << endl;
 
+    // check for errors before defragmentation
     if (!partition->check_fattables())
         return 2;
 
+    // proceed caching
     cout << "Caching data for future use..." << endl;
     partition->cache_counts();
 
     cout << "All OK, ready to proceed with defragmentation" << endl << endl;
 
+    // if only writeout, do nothing
+    // well, this is just old code, with writeout mode, we practically get read mode
     if (!writeout_only)
     {
         if (!partition->defragment())
@@ -69,13 +76,14 @@ int defrag_mode(const char* filename, const char* outfilename)
 
 int create_mode(const char* outfilename, uint32_t cluster_count, uint32_t cluster_size, uint32_t fat_type, uint32_t fat_copies, uint32_t reserv_clust_count, const char* volumedesc, const char* signature)
 {
+    // create, if possible
     fat_partition* partition = fat_partition::create(volumedesc, fat_type, fat_copies, cluster_size, cluster_count, reserv_clust_count, signature);
     if (!partition)
         return 1;
 
-    // test with: -mc -o bigfat.fat -cc 40000 -cs 16384 -ft 12 -fc 2 -vd "FATka jak vrata" -rc 10 -sig "OK"
-    // -md -i bigfat.fat -v
+    // test i.e. with: -mc -o bigfat.fat -cc 40000 -cs 16384 -ft 12 -fc 2 -vd "FATka jak vrata" -rc 10 -sig "OK"
 
+    // cache after creation
     partition->cache_counts();
 
     cout << endl << "Requested filesystem successfully created" << endl;
@@ -91,6 +99,7 @@ int create_mode(const char* outfilename, uint32_t cluster_count, uint32_t cluste
     FILE* loaded = nullptr;
     FILE* tmp;
 
+    // command loop
     while (true)
     {
         cout << "> ";
@@ -523,6 +532,7 @@ int main(int argc, char** argv)
         }
     }
 
+    // program mode has to be specified
     if (program_mode < 0)
     {
         cout << "Mode not specified. Please, specify mode using one of following parameters: " << endl;
