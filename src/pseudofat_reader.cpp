@@ -56,7 +56,8 @@ bool fat_partition::_read_fat_tables(FILE* f)
 
 bool fat_partition::_create_fat_tables()
 {
-    int i, j;
+    int i;
+    uint32_t j;
 
     fat_tables = new uint32_t*[bootrec->fat_copies];
     for (i = 0; i < bootrec->fat_copies; i++)

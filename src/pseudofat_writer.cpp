@@ -129,10 +129,10 @@ uint32_t fat_partition::_find_nth_free_cluster(uint32_t n)
 void fat_partition::write_randomized_entry(int32_t break_length_by)
 {
     uint32_t i, prev, tmp;
-    uint32_t nind = bootrec->root_directory_max_entries_count;
+    uint32_t nind = (uint32_t)bootrec->root_directory_max_entries_count;
 
     root_directory* nrdir = new root_directory[nind + 1];
-    memcpy(nrdir, rootdir, sizeof(root_directory)*bootrec->root_directory_max_entries_count);
+    memcpy(nrdir, rootdir, sizeof(root_directory)*((uint32_t)bootrec->root_directory_max_entries_count));
 
     delete[] rootdir;
     rootdir = nrdir;
@@ -160,7 +160,7 @@ void fat_partition::write_randomized_entry(int32_t break_length_by)
 
     _set_cluster_content(nrdir[nind].first_cluster, "obsah zacatku souboru");
 
-    uint32_t cluster_count = (nrdir[nind].file_size / bootrec->cluster_size) + break_length_by; // +1-1 (starting cluster is already written)
+    uint32_t cluster_count = (uint32_t)(nrdir[nind].file_size / bootrec->cluster_size) + break_length_by; // +1-1 (starting cluster is already written)
 
     prev = nrdir[nind].first_cluster;
 
@@ -177,14 +177,12 @@ void fat_partition::write_randomized_entry(int32_t break_length_by)
 
         prev = tmp;
     }
-
-    //
 }
 
 int fat_partition::write_source_file(FILE* source, const char* filename, uint32_t dest, bool randomize, int32_t break_length_by, uint32_t endfile_rec)
 {
-    uint32_t i, prev, tmp;
-    uint32_t nind = bootrec->root_directory_max_entries_count;
+    uint32_t prev, tmp;
+    uint32_t nind = (uint32_t)bootrec->root_directory_max_entries_count;
 
     if (free_clusters_count == 0)
         return 3;
@@ -193,7 +191,7 @@ int fat_partition::write_source_file(FILE* source, const char* filename, uint32_
     fseek(source, 0, SEEK_SET);
 
     root_directory* nrdir = new root_directory[nind + 1];
-    memcpy(nrdir, rootdir, sizeof(root_directory)*bootrec->root_directory_max_entries_count);
+    memcpy(nrdir, rootdir, sizeof(root_directory)*((uint32_t)bootrec->root_directory_max_entries_count));
 
     delete[] rootdir;
     rootdir = nrdir;

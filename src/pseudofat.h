@@ -5,6 +5,10 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <list>
+#include <vector>
+#include <queue>
+#include <deque>
 
 #define FAT_UNUSED      65535
 #define FAT_FILE_END    65534
@@ -53,8 +57,9 @@ class fat_partition
 
         uint32_t _find_free_cluster_end(int32_t end_offset = 0);
 
-        void _move_cluster(uint32_t source, uint32_t dest, int32_t thread_id = -1);
+        bool _move_cluster(uint32_t source, uint32_t dest, int32_t thread_id = -1);
         bool _is_cluster_available(uint32_t id);
+        bool _is_cluster_bad(uint32_t id);
 
         bool _read_bootrecord(FILE* f);
         bool _read_fat_tables(FILE* f);
@@ -73,23 +78,16 @@ class fat_partition
         bool _check_fattables_files();
         bool _check_fattables_equal();
 
-        uint32_t _get_supercluster_index(uint32_t entry);
-        uint32_t _get_aligned_file_entry(uint32_t cluster);
-        uint32_t _get_aligned_thread_storage(uint32_t cluster);
-
-        uint32_t _get_mutex_lock_index(uint32_t cluster);
-
         uint32_t _find_nth_free_cluster(uint32_t n);
         void _set_fat_entry(uint32_t index, uint32_t value);
         void _set_cluster_content(uint32_t index, char* content);
 
         uint32_t* file_base_offsets;
-        uint32_t process_index;
-        std::set<uint32_t> currently_assigned;
-        std::mutex curr_assigned_mtx;
         std::mutex assign_mtx;
+        std::mutex move_mtx;
 
-        std::mutex* cluster_mtx_map;
+        std::deque<uint32_t> occupied_clusters_to_work;
+        std::vector<uint32_t>* rootdir_cluster_chains;
 
         uint32_t free_space_size;
 
@@ -121,12 +119,11 @@ class fat_partition
         uint8_t**       clusters;
 
         // thread-related stuff
-        void get_entry_params(uint32_t entry, uint32_t &base_offset, uint32_t &start_cluster);
-        uint32_t get_thread_work_entry(uint32_t prevEntry = FAT_UNUSED);
+        uint32_t get_thread_work_cluster(int32_t retback = -1);
+        void put_thread_work_cluster(int32_t retback);
+        bool get_thread_work_cluster_reserve(uint32_t entry);
 
-        bool is_currently_assigned(uint32_t entry);
-        void mark_assign_entry(uint32_t entry);
-        void mark_unassign_entry(uint32_t entry);
+        uint32_t get_aligned_position(uint32_t current);
 
         void thread_process(uint32_t threadid);
 };

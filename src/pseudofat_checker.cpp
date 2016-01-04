@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 bool fat_partition::_check_cluster_chain_everywhere(uint32_t start_cluster)
 {
@@ -134,7 +135,7 @@ bool fat_partition::check_fattables()
 
 void fat_partition::cache_counts()
 {
-    uint32_t i;
+    uint32_t i, j;
 
     // cache count of free clusters
     free_clusters_count = 0;
@@ -142,6 +143,23 @@ void fat_partition::cache_counts()
     {
         if (fat_tables[0][i] == FAT_UNUSED)
             free_clusters_count++;
+        else if (fat_tables[0][i] != FAT_BAD_CLUSTER)
+            occupied_clusters_to_work.push_back(i);
+    }
+
+    // cache cluster chains
+    rootdir_cluster_chains = new std::vector<uint32_t>[(uint32_t)bootrec->root_directory_max_entries_count];
+    for (i = 0; i < bootrec->root_directory_max_entries_count; i++)
+    {
+        // go from first cluster
+        j = rootdir[i].first_cluster;
+
+        // and one-by-one push used clusters to cached structure (this will i.e. preserve cache locality in future search)
+        do
+        {
+            rootdir_cluster_chains[i].push_back(j);
+            j = fat_tables[0][j];
+        } while (j != FAT_FILE_END);
     }
 }
 
@@ -191,13 +209,17 @@ void fat_partition::dump_contents()
 
     for (k = 0; k < bootrec->cluster_count; k++)
     {
+        // if it's in file map, print it as sequenced short
         if (fileMap.find(k) != fileMap.end())
         {
             cout << fileMap[k];
             for (j = fileMap[k].length(); j <= spacing; j++)
                 cout << " ";
         }
-        else
+        // print "!" for bad cluster
+        else if (fat_tables[0][k] == FAT_BAD_CLUSTER)
+            cout << "!" << spacingStr;
+        else // otherwise print "_" for unused cluster
             cout << "_" << spacingStr;
 
         if (k > 0 && k % 16 == 0)
