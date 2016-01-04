@@ -66,7 +66,7 @@ class fat_partition
         bool _read_root_directory(FILE* f);
         bool _read_clusters(FILE* f);
 
-        bool _create_bootrecord(char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, char* signature);
+        bool _create_bootrecord(const char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, const char* signature);
         bool _create_fat_tables();
         bool _create_clusters();
 
@@ -80,7 +80,7 @@ class fat_partition
 
         uint32_t _find_nth_free_cluster(uint32_t n);
         void _set_fat_entry(uint32_t index, uint32_t value);
-        void _set_cluster_content(uint32_t index, char* content);
+        void _set_cluster_content(uint32_t index, const char* content);
 
         uint32_t* file_base_offsets;
         std::mutex assign_mtx;
@@ -102,9 +102,9 @@ class fat_partition
 
         uint32_t find_free_cluster_begin();
 
-        static fat_partition* load_from_file(char* filename);
-        static fat_partition* create(char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count = 10, char* signature = "OK");
-        bool save_to_file(char* filename);
+        static fat_partition* load_from_file(const char* filename);
+        static fat_partition* create(const char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count = 10, const char* signature = "OK");
+        bool save_to_file(const char* filename);
 
         void write_randomized_entry(int32_t break_length_by = 0);
         int write_source_file(FILE* source, const char* filename, uint32_t dest, bool randomize = false, int32_t break_length_by = 0, uint32_t endfile_rec = FAT_FILE_END);

@@ -12,7 +12,7 @@ bool writeout_only = false;
 bool dump_result = false;
 int program_mode = 0;
 
-int read_mode(char* filename)
+int read_mode(const char* filename)
 {
     // create partition record
     fat_partition* partition = fat_partition::load_from_file(filename);
@@ -35,7 +35,7 @@ int read_mode(char* filename)
     return 0;
 }
 
-int defrag_mode(char* filename, char* outfilename)
+int defrag_mode(const char* filename, const char* outfilename)
 {
     // create partition record
     fat_partition* partition = fat_partition::load_from_file(filename);
@@ -67,7 +67,7 @@ int defrag_mode(char* filename, char* outfilename)
     return 0;
 }
 
-int create_mode(char* outfilename, uint32_t cluster_count, uint32_t cluster_size, uint32_t fat_type, uint32_t fat_copies, uint32_t reserv_clust_count, char* volumedesc, char* signature)
+int create_mode(const char* outfilename, uint32_t cluster_count, uint32_t cluster_size, uint32_t fat_type, uint32_t fat_copies, uint32_t reserv_clust_count, const char* volumedesc, const char* signature)
 {
     fat_partition* partition = fat_partition::create(volumedesc, fat_type, fat_copies, cluster_size, cluster_count, reserv_clust_count, signature);
     if (!partition)
@@ -249,16 +249,16 @@ int main(int argc, char** argv)
     cout << "=========================================" << endl;
     cout << endl;
 
-    char* filename = nullptr;
-    char* outfilename = nullptr;
+    std::string filename("");
+    std::string outfilename("");
 
     uint32_t cluster_count = 0;
     uint32_t cluster_size = 512;
     uint32_t fat_type = 12;
     uint32_t fat_count = 2;
-    char* vol_descriptor = "NEW VOLUME";
+    std::string vol_descriptor = "NEW VOLUME";
     uint32_t reserved_clusters = 0;
-    char* signature = "OK";
+    std::string signature = "OK";
 
     program_mode = -1;
     /* Table of relevant arguments:
@@ -509,7 +509,7 @@ int main(int argc, char** argv)
                 signature = argv[i + 1];
                 i++;
 
-                if (strcmp("OK", signature) != 0 && strcmp("NOK", signature) != 0)
+                if (strcmp("OK", signature.c_str()) != 0 && strcmp("NOK", signature.c_str()) != 0)
                 {
                     cerr << "Invalid signature, must be eighter \"OK\" or \"NOK\"";
                 }
@@ -533,12 +533,12 @@ int main(int argc, char** argv)
         return 5;
     }
 
-    if (!filename && program_mode != PROGRAM_MODE_CREATE)
+    if (filename.length() == 0 && program_mode != PROGRAM_MODE_CREATE)
     {
         cout << "No input file specified, falling back to " << DEFAULT_INPUT_FILE << endl;
         filename = DEFAULT_INPUT_FILE;
     }
-    if (!outfilename && program_mode != PROGRAM_MODE_READ)
+    if (outfilename.length() == 0 && program_mode != PROGRAM_MODE_READ)
     {
         cout << "No output file specified, falling back to " << DEFAULT_OUTPUT_FILE << endl;
         outfilename = DEFAULT_OUTPUT_FILE;
@@ -549,13 +549,13 @@ int main(int argc, char** argv)
     switch (program_mode)
     {
         case PROGRAM_MODE_READ:
-            read_mode(filename);
+            read_mode(filename.c_str());
             break;
         case PROGRAM_MODE_DEFRAG:
-            defrag_mode(filename, outfilename);
+            defrag_mode(filename.c_str(), outfilename.c_str());
             break;
         case PROGRAM_MODE_CREATE:
-            create_mode(outfilename, cluster_count, cluster_size, fat_type, fat_count, reserved_clusters, vol_descriptor, signature);
+            create_mode(outfilename.c_str(), cluster_count, cluster_size, fat_type, fat_count, reserved_clusters, vol_descriptor.c_str(), signature.c_str());
             break;
     }
 

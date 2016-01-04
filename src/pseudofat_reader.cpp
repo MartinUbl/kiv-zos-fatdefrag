@@ -14,7 +14,7 @@ bool fat_partition::_read_bootrecord(FILE* f)
     return true;
 }
 
-bool fat_partition::_create_bootrecord(char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, char* signature)
+bool fat_partition::_create_bootrecord(const char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, const char* signature)
 {
     cout << "Creating bootrecord..." << endl;
     bootrec = new boot_record;
@@ -141,7 +141,7 @@ bool fat_partition::_create_clusters()
     return true;
 }
 
-fat_partition* fat_partition::load_from_file(char* filename)
+fat_partition* fat_partition::load_from_file(const char* filename)
 {
     fat_partition* partition = new fat_partition;
 
@@ -184,7 +184,7 @@ fat_partition* fat_partition::load_from_file(char* filename)
     return partition;
 }
 
-fat_partition* fat_partition::create(char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, char* signature)
+fat_partition* fat_partition::create(const char* volume_desc, int32_t fat_type, int32_t fat_copies, uint32_t cluster_size, uint32_t cluster_count, uint32_t reserver_cluster_count, const char* signature)
 {
     fat_partition* partition = new fat_partition;
 

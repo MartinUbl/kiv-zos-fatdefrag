@@ -55,7 +55,7 @@ bool fat_partition::_write_clusters(FILE* f)
     return true;
 }
 
-bool fat_partition::save_to_file(char* filename)
+bool fat_partition::save_to_file(const char* filename)
 {
     FILE* f = fopen(filename, "wb");
 
@@ -102,7 +102,7 @@ void fat_partition::_set_fat_entry(uint32_t index, uint32_t value)
         fat_tables[i][index] = (value == FAT_FILE_END && i == 1) ? 65535 : value;
 }
 
-void fat_partition::_set_cluster_content(uint32_t index, char* content)
+void fat_partition::_set_cluster_content(uint32_t index, const char* content)
 {
     strncpy((char*)clusters[index], content, bootrec->cluster_size);
 
